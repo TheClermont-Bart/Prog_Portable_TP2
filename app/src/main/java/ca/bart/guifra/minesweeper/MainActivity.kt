@@ -8,6 +8,7 @@ import android.view.View
 import androidx.core.view.children
 import ca.bart.guifra.minesweeper.databinding.ActivityMainBinding
 import kotlinx.parcelize.Parcelize
+import kotlin.text.ifEmpty
 
 @Parcelize
 data class Cell(var exposed: Boolean = false) : Parcelable
@@ -18,12 +19,19 @@ data class Model(val grid: Array<Cell>) : Parcelable
 class MainActivity : Activity() {
 
     companion object {
-
         const val TAG = "MainActivity"
+        const val NB_COLUMNS = 10
+        const val NB_ROWS = 10
 
-        const val NB_COLUMNS = 3
-        const val NB_ROWS = 3
     }
+
+    var mines: Int = 10
+        get() = field
+        set(value) {
+            field = value
+            refresh()
+        }
+
 
     val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -34,21 +42,17 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+
         binding.grid.children.forEachIndexed { index:Int, button: View ->
 
             button.setOnClickListener {
-
                 onButtonClicked(index)
             }
 
             button.setOnLongClickListener {
-
-
                 true // prevents regular click
             }
         }
-
-
 
     }
 

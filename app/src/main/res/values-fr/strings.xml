@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Demineur</string>
+    <string name="new_game">Nouvelle Partie</string>
+    <string name="mines_count">Mines Restantes : %d</string>
+    <string name="defaulte_mines">42</string>
+</resources>
