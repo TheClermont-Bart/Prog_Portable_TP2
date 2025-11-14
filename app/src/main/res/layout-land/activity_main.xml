@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/istockphoto"
     tools:context=".MainActivity">
 
     <GridLayout
@@ -539,6 +540,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center|center_horizontal"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:text="@string/mines_count"/>
 
 

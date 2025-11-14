@@ -8,7 +8,6 @@ import android.view.View
 import androidx.core.view.children
 import ca.bart.guifra.minesweeper.databinding.ActivityMainBinding
 import kotlinx.parcelize.Parcelize
-import kotlin.text.ifEmpty
 
 @Parcelize
 data class Cell(var exposed: Boolean = false) : Parcelable
@@ -23,9 +22,10 @@ class MainActivity : Activity() {
         const val NB_COLUMNS = 10
         const val NB_ROWS = 10
 
+        const val KEY_MINES = "Mines"
     }
 
-    var mines: Int = 10
+    var mines = 10
         get() = field
         set(value) {
             field = value
@@ -54,6 +54,7 @@ class MainActivity : Activity() {
             }
         }
 
+        refresh()
     }
 
     fun onButtonClicked(index:Int) {
@@ -76,7 +77,7 @@ class MainActivity : Activity() {
         //getNeighbors(index).forEach { onButtonClicked(it) }
 
 
-
+        mines--
         refresh()
     }
 
@@ -98,6 +99,8 @@ class MainActivity : Activity() {
 
     fun refresh() {
 
+        binding.minesCounter.text = getString(R.string.mines_count, mines)
+
         (binding.grid.children zip model.grid.asSequence()).forEach { (button, cell) ->
 
             button.setBackgroundResource(
@@ -106,6 +109,18 @@ class MainActivity : Activity() {
                 else R.drawable.btn_up
             )
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putInt(KEY_MINES, mines)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        mines = savedInstanceState.getInt(KEY_MINES, 0)
     }
 
     private fun Int.toCoords() = Pair(this % NB_COLUMNS, this / NB_COLUMNS)

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Minesweeper</string>
     <string name="new_game">New Game</string>
-    <string name="mines_count">Mines Left : %d</string>
-    <string name="defaulte_mines">42</string>
+    <string name="mines_count">Remaining Mines : %d</string>
 </resources>

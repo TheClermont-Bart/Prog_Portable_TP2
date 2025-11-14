@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/istockphoto"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -554,6 +555,8 @@
             android:id="@+id/mines_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:text="@string/mines_count"/>
 
         <Space
