@@ -1,4 +1,4 @@
-package ca.bart.guifra.minesweeper
+package ca.bart.u2430136.minesweeper
 
 import android.app.Activity
 import android.os.Bundle
@@ -6,11 +6,11 @@ import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import androidx.core.view.children
-import ca.bart.guifra.minesweeper.databinding.ActivityMainBinding
+import ca.bart.u2430136.minesweeper.databinding.ActivityMainBinding
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Cell(var exposed: Boolean = false) : Parcelable
+data class Cell(var exposed: Boolean = false, var flag: Boolean = false) : Parcelable
 
 @Parcelize
 data class Model(val grid: Array<Cell>) : Parcelable
@@ -21,7 +21,6 @@ class MainActivity : Activity() {
         const val TAG = "MainActivity"
         const val NB_COLUMNS = 10
         const val NB_ROWS = 10
-
         const val KEY_MINES = "Mines"
     }
 
@@ -50,10 +49,31 @@ class MainActivity : Activity() {
             }
 
             button.setOnLongClickListener {
+                onButtonLongClicked(index)
                 true // prevents regular click
             }
         }
 
+        refresh()
+    }
+
+    fun onButtonLongClicked(index: Int){
+        val (x, y) = index.toCoords()
+        Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
+
+        if (model.grid[index].flag)
+            return
+
+        model.grid[index].flag = true
+
+        val howManyExposedNeighbors = getNeighbors(index).count { model.grid[it].flag }
+        Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
+
+
+        //getNeighbors(index).forEach { onButtonClicked(it) }
+
+
+        mines--
         refresh()
     }
 
@@ -106,6 +126,8 @@ class MainActivity : Activity() {
             button.setBackgroundResource(
                 if (cell.exposed)
                     R.drawable.btn_down
+                else if (cell.flag)
+                    R.drawable.btn_flag
                 else R.drawable.btn_up
             )
         }
@@ -134,6 +156,3 @@ class MainActivity : Activity() {
 
 
 }
-
-
-
