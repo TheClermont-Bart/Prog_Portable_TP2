@@ -10,7 +10,7 @@ import ca.bart.u2430136.minesweeper.databinding.ActivityMainBinding
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Cell(var exposed: Boolean = false, var flag: Boolean = false) : Parcelable
+data class Cell(var exposed: Boolean = false, var flag: Boolean = false, var isMine: Boolean = false) : Parcelable
 
 @Parcelize
 data class Model(val grid: Array<Cell>) : Parcelable
@@ -22,6 +22,7 @@ class MainActivity : Activity() {
         const val NB_COLUMNS = 10
         const val NB_ROWS = 10
         const val KEY_MINES = "Mines"
+        const val KEY_MODEL = "Model"
     }
 
     var mines = 10
@@ -41,6 +42,16 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        if (savedInstanceState != null) {
+            mines = savedInstanceState.getInt(KEY_MINES, 10)
+            (savedInstanceState.getParcelable(KEY_MODEL) as? Model)?.let {
+                model = it
+            }
+        }
+
+        binding.newGame.setOnClickListener {
+            newGame()
+        }
 
         binding.grid.children.forEachIndexed { index:Int, button: View ->
 
@@ -53,7 +64,7 @@ class MainActivity : Activity() {
                 true // prevents regular click
             }
         }
-
+        placeMines()
         refresh()
     }
 
@@ -69,12 +80,27 @@ class MainActivity : Activity() {
         val howManyExposedNeighbors = getNeighbors(index).count { model.grid[it].flag }
         Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
 
-
-        //getNeighbors(index).forEach { onButtonClicked(it) }
-
-
-        mines--
         refresh()
+    }
+
+    fun newGame(){
+        model = Model(Array(NB_COLUMNS * NB_ROWS) { Cell() })
+        mines = 10
+        placeMines()
+        refresh()
+    }
+
+    fun placeMines(){
+        val random = java.util.Random()
+        var minesPlaced = 0
+
+        while (minesPlaced < mines) {
+            val randomIndex = random.nextInt(NB_COLUMNS * NB_ROWS)
+            if (!model.grid[randomIndex].isMine) {
+                model.grid[randomIndex].isMine = true
+                minesPlaced++
+            }
+        }
     }
 
     fun onButtonClicked(index:Int) {
@@ -96,8 +122,6 @@ class MainActivity : Activity() {
 
         //getNeighbors(index).forEach { onButtonClicked(it) }
 
-
-        mines--
         refresh()
     }
 
@@ -124,7 +148,9 @@ class MainActivity : Activity() {
         (binding.grid.children zip model.grid.asSequence()).forEach { (button, cell) ->
 
             button.setBackgroundResource(
-                if (cell.exposed)
+                if (cell.exposed && cell.isMine)
+                    R.drawable.btn_down_mine
+                else if (cell.exposed)
                     R.drawable.btn_down
                 else if (cell.flag)
                     R.drawable.btn_flag
@@ -137,12 +163,19 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
 
         outState.putInt(KEY_MINES, mines)
+
+        outState.putParcelable(KEY_MODEL,model)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
 
         mines = savedInstanceState.getInt(KEY_MINES, 0)
+
+        (savedInstanceState.getParcelable(KEY_MODEL) as? Model)?.let {
+            model = it
+        }
+
     }
 
     private fun Int.toCoords() = Pair(this % NB_COLUMNS, this / NB_COLUMNS)
