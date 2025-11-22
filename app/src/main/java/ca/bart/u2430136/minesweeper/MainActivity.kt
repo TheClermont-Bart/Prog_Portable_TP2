@@ -47,7 +47,7 @@ class MainActivity : Activity() {
             (savedInstanceState.getParcelable(KEY_MODEL) as? Model)?.let {
                 model = it
             }
-        }
+        } else{placeMines()}
 
         binding.newGame.setOnClickListener {
             newGame()
@@ -61,10 +61,10 @@ class MainActivity : Activity() {
 
             button.setOnLongClickListener {
                 onButtonLongClicked(index)
-                true // prevents regular click
+                true
             }
         }
-        placeMines()
+
         refresh()
     }
 
@@ -72,13 +72,9 @@ class MainActivity : Activity() {
         val (x, y) = index.toCoords()
         Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
 
-        if (model.grid[index].flag){
+        if (model.grid[index].flag) {
             model.grid[index].flag = false
-            return}else if(!model.grid[index].flag){
-            model.grid[index].flag = true}
-
-        //val howManyExposedNeighbors = getNeighbors(index).count { model.grid[it].flag }
-        //Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
+        }else{ model.grid[index].flag = true}
 
         refresh()
     }
@@ -116,14 +112,20 @@ class MainActivity : Activity() {
 
         model.grid[index].exposed = true
 
-
-
-
-        val howManyExposedNeighbors = getNeighbors(index).count { model.grid[it].exposed }
-        Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
-
-
-        getNeighbors(index).forEach { onButtonClicked(it) }
+        if (model.grid[index].isMine) {
+            model.grid.forEach { cell ->
+                if (cell.isMine) {
+                    cell.exposed = true
+                }
+            }
+        } else {
+            val mineCount = getNeighbors(index).count { model.grid[it].isMine }
+            if (mineCount == 0) {
+                getNeighbors(index).forEach { neighborIndex ->
+                    onButtonClicked(neighborIndex)
+                }
+            }
+        }
 
         refresh()
     }
@@ -148,13 +150,26 @@ class MainActivity : Activity() {
 
         binding.minesCounter.text = getString(R.string.mines_count, mines)
 
-        (binding.grid.children zip model.grid.asSequence()).forEach { (button, cell) ->
+        binding.grid.children.forEachIndexed { index, button -> val cell = model.grid[index]
 
             button.setBackgroundResource(
                 if (cell.exposed && cell.isMine)
                     R.drawable.btn_down_mine
-                else if (cell.exposed)
-                    R.drawable.btn_down
+                else if (cell.exposed) {
+                    val mineCount = getNeighbors(index).count { model.grid[it].isMine }
+                    when (mineCount) {
+                        0 -> R.drawable.btn_down
+                        1 -> R.drawable.btn_down_1
+                        2 -> R.drawable.btn_down_2
+                        3 -> R.drawable.btn_down_3
+                        4 -> R.drawable.btn_down_4
+                        5 -> R.drawable.btn_down_5
+                        6 -> R.drawable.btn_down_6
+                        7 -> R.drawable.btn_down_7
+                        8 -> R.drawable.btn_down_8
+                        else -> R.drawable.btn_down
+                    }
+                }
                 else if (cell.flag)
                     R.drawable.btn_flag
                 else R.drawable.btn_up
