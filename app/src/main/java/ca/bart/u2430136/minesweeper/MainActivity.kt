@@ -72,13 +72,13 @@ class MainActivity : Activity() {
         val (x, y) = index.toCoords()
         Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
 
-        if (model.grid[index].flag)
-            return
+        if (model.grid[index].flag){
+            model.grid[index].flag = false
+            return}else if(!model.grid[index].flag){
+            model.grid[index].flag = true}
 
-        model.grid[index].flag = true
-
-        val howManyExposedNeighbors = getNeighbors(index).count { model.grid[it].flag }
-        Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
+        //val howManyExposedNeighbors = getNeighbors(index).count { model.grid[it].flag }
+        //Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
 
         refresh()
     }
@@ -111,6 +111,9 @@ class MainActivity : Activity() {
         if (model.grid[index].exposed)
             return
 
+        if(model.grid[index].flag)
+            return
+
         model.grid[index].exposed = true
 
 
@@ -120,7 +123,7 @@ class MainActivity : Activity() {
         Log.d(TAG, "howManyExposedNeighbors = $howManyExposedNeighbors")
 
 
-        //getNeighbors(index).forEach { onButtonClicked(it) }
+        getNeighbors(index).forEach { onButtonClicked(it) }
 
         refresh()
     }
