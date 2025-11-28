@@ -74,7 +74,10 @@ class MainActivity : Activity() {
 
         if (model.grid[index].flag) {
             model.grid[index].flag = false
-        }else{ model.grid[index].flag = true}
+        }else{
+            model.grid[index].flag = true
+            mines--
+        }
 
         refresh()
     }
