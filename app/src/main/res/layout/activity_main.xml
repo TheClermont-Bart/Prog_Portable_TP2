@@ -555,6 +555,17 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/winlose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textScaleX="2"
+            android:text=""
+            />
+
+        <TextView
             android:id="@+id/mines_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

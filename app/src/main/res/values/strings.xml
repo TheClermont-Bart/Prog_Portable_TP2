@@ -2,4 +2,6 @@
     <string name="app_name">Minesweeper</string>
     <string name="new_game">New Game</string>
     <string name="mines_count">Remaining Mines : %d</string>
+    <string name="win">" Win!"</string>
+    <string name="lose">Lose!</string>
 </resources>

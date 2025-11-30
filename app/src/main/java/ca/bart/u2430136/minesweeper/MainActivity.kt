@@ -32,6 +32,8 @@ class MainActivity : Activity() {
             refresh()
         }
 
+    var winlose : Boolean = false;
+
 
     val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -53,38 +55,44 @@ class MainActivity : Activity() {
             newGame()
         }
 
+
         binding.grid.children.forEachIndexed { index:Int, button: View ->
 
-            button.setOnClickListener {
-                onButtonClicked(index)
-            }
+                button.setOnClickListener {
+                    onButtonClicked(index)
+                }
 
-            button.setOnLongClickListener {
-                onButtonLongClicked(index)
-                true
+                button.setOnLongClickListener {
+                    onButtonLongClicked(index)
+                    true
+                }
             }
-        }
 
         refresh()
     }
 
     fun onButtonLongClicked(index: Int){
-        val (x, y) = index.toCoords()
-        Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
+        if(winlose){return}else {
+            val (x, y) = index.toCoords()
+            Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
 
-        if (model.grid[index].flag) {
-            model.grid[index].flag = false
-        }else{
-            model.grid[index].flag = true
-            mines--
+            if (model.grid[index].flag) {
+                model.grid[index].flag = false
+                mines++
+            } else if (!model.grid[index].exposed) {
+                model.grid[index].flag = true
+                mines--
+            }
+
+            refresh()
         }
-
-        refresh()
     }
 
     fun newGame(){
         model = Model(Array(NB_COLUMNS * NB_ROWS) { Cell() })
         mines = 10
+        binding.winlose?.text = ""
+        winlose = false
         placeMines()
         refresh()
     }
@@ -103,34 +111,37 @@ class MainActivity : Activity() {
     }
 
     fun onButtonClicked(index:Int) {
+        if(winlose){return}else {
+            val (x, y) = index.toCoords()
+            Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
 
-        val (x, y) = index.toCoords()
-        Log.d(TAG, "onButtonClicked(index=$index, x=$x, y=$y)")
+            if (model.grid[index].exposed)
+                return
 
-        if (model.grid[index].exposed)
-            return
+            if (model.grid[index].flag)
+                return
 
-        if(model.grid[index].flag)
-            return
+            model.grid[index].exposed = true
 
-        model.grid[index].exposed = true
-
-        if (model.grid[index].isMine) {
-            model.grid.forEach { cell ->
-                if (cell.isMine) {
-                    cell.exposed = true
+            if (model.grid[index].isMine) {
+                model.grid.forEach { cell ->
+                    if (cell.isMine) {
+                        cell.exposed = true
+                        binding.winlose?.text = getString(R.string.lose)
+                        winlose = true
+                    }
+                }
+            } else {
+                val mineCount = getNeighbors(index).count { model.grid[it].isMine }
+                if (mineCount == 0) {
+                    getNeighbors(index).forEach { neighborIndex ->
+                        onButtonClicked(neighborIndex)
+                    }
                 }
             }
-        } else {
-            val mineCount = getNeighbors(index).count { model.grid[it].isMine }
-            if (mineCount == 0) {
-                getNeighbors(index).forEach { neighborIndex ->
-                    onButtonClicked(neighborIndex)
-                }
-            }
+
+            refresh()
         }
-
-        refresh()
     }
 
     private fun getNeighbors(index: Int): List<Int> {
@@ -152,6 +163,14 @@ class MainActivity : Activity() {
     fun refresh() {
 
         binding.minesCounter.text = getString(R.string.mines_count, mines)
+
+        binding.grid.children.forEachIndexed { index, button -> val cell = model.grid[index]
+
+        if(model.grid.count(Cell::exposed) == 90 && !winlose){
+            binding.winlose?.text = getString(R.string.win)
+            winlose = true
+        }
+        }
 
         binding.grid.children.forEachIndexed { index, button -> val cell = model.grid[index]
 
